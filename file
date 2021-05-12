@@ -1,0 +1,128 @@
+#include "pch.h"
+#include <cstdlib>
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <ctime>
+using namespace std;
+
+class storage
+{
+public:		//открытые поля
+	string name;	//наименование склада
+	int maxVol;	//максимальный объем хранимых пиломатериалов (в м3)
+	double volume;	//текущий объем хранимых пиломатериалов (в м3)
+	double money;	//сумма денег в кассе склада
+	double purchase;//цена закупки пиломатериалов
+	double sale;	//цена продажи пиломатериалов
+	int d = 0;		//количество сделок
+
+
+	//метод для вывода состояния склада
+	void status()
+	{
+		cout << "\n  Текущий объем склада : " << volume << "куб.м.\n  ";
+		cout << volume / (maxVol / 100) << " % от объема склада\n";
+		cout << "  Баланс кассы : " << money << "руб.\n";
+		cout << "  Проведено " << d << " сделок\n";
+	} 
+
+	//конструктор
+	storage(string n, double MV, double v, double m, double p, double s)
+	{
+		//инициализация полей
+		name = n;
+		maxVol = MV;
+		volume = v;
+		money = m;
+		purchase = p;
+		sale = s;
+
+		cout << "\n Открыт склад пиломатериалов " << name;
+		cout << "\n\n  Объем хранения склада: " << maxVol << "куб.м.";
+		cout << "\n  Состояние склада на начало дня\n";
+		status();
+	}
+
+	// метод для закупки пиломатериалов
+	void input(double v) //объем поставки
+	{
+		if (v < (maxVol - volume))  //проверка наличия места на складе
+		{
+			if (purchase*v <= money)  //проверка наличия денег
+			{
+				d++;
+				cout << "\n Сделка по закупке " << d << " одобрена";
+				//изменение состояния склада 
+				money -= purchase * v; 
+				volume += v;
+			}
+			else
+			{
+				cout << "\n !! Сделка отклонена : недостаточно денег ";
+			}
+		}
+		else
+		{
+			cout << "\n !! Сделка отклонена : недостаточно места на складе ";
+		}
+		status(); //вывод состояния склада
+	}
+
+	// метод для поставки пиломатериалов
+	void output(double v) //объем отгрузки
+	{
+		if (v < volume)
+		{
+			d++;
+			cout << "\n Сделка по поставке " << d << " одобрена";
+			//изменение состояния склада 
+			money += sale * v;
+			volume -= v;
+		}
+		else
+		{
+			cout << "\n !! Сделка отклонена : объем заказа превышает текущий объем склада ";
+		}
+		status(); //вывод состояния склада
+	}
+
+	// метод для вычисления случайного значения 
+	double random()
+	{
+		return rand() % (maxVol - 2000) + 1;
+	}
+	
+	// деструктор
+	~storage()
+	{
+		cout << "\n  Состояние склада на конец дня:\n";
+
+		status(); //вывод состояния склада
+
+		cout << "\n\n  Работа со складом " << name << " завершена";
+
+	}
+};
+
+int main()
+{
+	setlocale(LC_ALL, "rus");
+
+	//создание объекта
+	storage* object = new storage("Черная мамба", 10000, 5000, 50000, 20, 30);
+	
+
+	//цикл для создания сделок
+	for (int i = 0; i < 5; i++)
+	{
+		(*object).input((*object).random()); // сделка по поставке
+		(*object).output((*object).random()); // сделка по отгрузке
+	}
+	
+	//запуск деструктора
+	delete object;
+
+	system("pause>nul");
+	return 0;
+}
